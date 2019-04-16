@@ -1,0 +1,71 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>摇晃手机，手机震动</title>
+    <title></title>
+<style data-styled-components=""></style></head>
+
+<body>
+    <div>摇晃手机，手机震动</div>
+
+    <div id="msg"></div>
+
+<script type="text/javascript">
+    var num = 0;
+    var msg = document.getElementById('msg')
+
+
+
+    //运动事件监听
+    if (window.DeviceMotionEvent) {
+        window.addEventListener('devicemotion', deviceMotionHandler, false);
+    }
+
+    //获取加速度信息
+    //通过监听上一步获取到的x, y, z 值在一定时间范围内的变化率，进行设备是否有进行晃动的判断。
+    //而为了防止正常移动的误判，需要给该变化率设置一个合适的临界值。
+    var SHAKE_THRESHOLD = 4000;
+    var last_update = 0;
+    var x, y, z, last_x = 0,
+        last_y = 0,
+        last_z = 0;
+
+    function deviceMotionHandler(eventData) {
+        var acceleration = eventData.accelerationIncludingGravity;
+        var curTime = new Date().getTime();
+        if ((curTime - last_update) > 10) {
+            var diffTime = curTime - last_update;
+            last_update = curTime;
+            x = acceleration.x;
+            y = acceleration.y;
+            z = acceleration.z;
+            var speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
+            if (speed > SHAKE_THRESHOLD) {
+                vibration(); // Do something
+            }
+            last_x = x;
+            last_y = y;
+            last_z = z;
+        }
+    }
+
+    function vibration() {
+        navigator.vibrate = navigator.vibrate ||
+            navigator.webkitVibrate ||
+            navigator.mozVibrate ||
+            navigator.msVibrate;
+
+        if (navigator.vibrate) {
+            // 支持
+            console.log("支持设备震动！");
+            //alert('你晃手机了');
+            num++
+            msg.innerHTML = '你摇晃了'+num+'次'
+        }
+        //中括号里面的值标示[震动时间，停止时间，震动时间，停止时间………..]。没有错就是这种规律，简单明了
+        navigator.vibrate([500, 300, 400, 300]);
+    }
+</script>
+
+</body></html>
